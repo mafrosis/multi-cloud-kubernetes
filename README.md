@@ -4,35 +4,34 @@ Multi-cloud Kubernetes
 A vague effort at getting EKS up in a VPC with terraform, and peering that with a private GKE.
 
 
+## AWSCLI Configuration
+
+
+
+    [profile contino-sandbox]
+    role_arn = arn:aws:iam::139908768132:role/OrganizationAccountAccessRole
+    source_profile = contino-sts
+
+
 ## Using Google SSO for AWS
 
-The project [aws-google-auth](cevoaustralia/aws-google-auth) configures command line access to AWS accounts via the CLI.
+The project [aws-google-auth](github.com/cevoaustralia/aws-google-auth) configures command line
+access to AWS accounts via the CLI.
 
     git clone https://github.com/cevoaustralia/aws-google-auth.git
+    cd aws-google-auth
+    docker build -t cevoaustralia/aws-google-auth .
 
-Add the following `Makefile` to the directory:
+Update the `Makefile` in the current directory with your Google SSO details.
 
-    .PHONY: run
+Run `make login` to update your `~/.aws/config` and `~/.aws/credentials` with fresh auth data:
 
-    GOOGLE_USERNAME?=matt.black@contino.io
-    GOOGLE_IDP_ID?=
-    GOOGLE_SP_ID?=
+    make login
 
-    AWS_DEFAULT_REGION?=ap-southeast-2
-    AWS_PROFILE?=contino-sts
-    AWS_ROLE_ARN?=arn:aws:iam::xxxxxxxx:role/matt-black-account
-    DURATION?=28800
 
-    run:
-      docker run -it --rm -v ~/.aws:/root/.aws cevoaustralia/aws-google-auth \
-        -I ${GOOGLE_IDP_ID} \
-        -S ${GOOGLE_SP_ID} \
-        -u ${GOOGLE_USERNAME} \
-        -R ${AWS_DEFAULT_REGION} \
-        -p ${AWS_PROFILE} \
-        -r ${AWS_ROLE_ARN} \
-        -d ${DURATION}
+## Configure kubectl for EKS
 
-Run `make` to update your `~/.aws/config` and `~/.aws/credentials` with fresh auth data:
+After `terraform apply` has created all your AWS infra, the following `awscli` command will setup a
+kubectl context and other plumbing for talking with EKS:
 
-    make
+    AWS_PROFILE=contino-sandbox aws --region=us-west-2 eks update-kubeconfig --name multi
