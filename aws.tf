@@ -242,13 +242,14 @@ USERDATA
 }
 
 resource "aws_launch_configuration" "multi" {
-  associate_public_ip_address = true
-  iam_instance_profile        = "${aws_iam_instance_profile.multi-node.name}"
-  image_id                    = "${data.aws_ami.eks-worker.id}"
-  instance_type               = "m4.large"
-  name_prefix                 = "terraform-eks-multi"
-  security_groups             = ["${aws_security_group.multi-node.id}"]
-  user_data_base64            = "${base64encode(local.multi-node-userdata)}"
+  iam_instance_profile = "${aws_iam_instance_profile.multi-node.name}"
+  image_id             = "${data.aws_ami.eks-worker.id}"
+  instance_type        = "m4.large"
+  name_prefix          = "terraform-eks-multi"
+  security_groups      = ["${aws_security_group.multi-node.id}"]
+  user_data_base64     = "${base64encode(local.multi-node-userdata)}"
+
+  #associate_public_ip_address = true
 
   lifecycle {
     create_before_destroy = true
